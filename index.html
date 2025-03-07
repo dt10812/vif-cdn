@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sevenax: Carbon Pricing Simulator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .cutscene {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .city-container {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .city-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #00838f;
+        }
+
+        .company-item {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .company-name {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .money-display {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons button {
+            background-color: #00acc1;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .action-buttons button:hover {
+            background-color: #00838f;
+        }
+
+        .message-area {
+            color: #d32f2f;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .level-display {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="cutscene" id="cutscene">The country has implemented carbon pricing.</div>
+        <div class="level-display" id="levelDisplay">Level: 1</div>
+        <div class="money-display" id="moneyDisplay">Money: $0</div>
+        <div id="cities"></div>
+        <div class="action-buttons" id="actionButtons" style="display: none;">
+            <button id="chargeButton">Charge</button>
+            <button id="doNothingButton">Do Nothing</button>
+        </div>
+        <div class="message-area" id="messageArea"></div>
+    </div>
+
+    <script>
+        const cities = {
+            Googagoo: ['A', 'B', 'C'],
+            Grooseus: ['A', 'B', 'C'],
+            Ooolowtaperfade: ['A', 'B', 'C']
+        };
+
+        let money = 0;
+        let level = 1;
+        const levelGoals = [3000, 3500, 4250, 5500, 7000, 9000, 12000, 16000, 22000, 30000];
+        const levelRewards = [200, 300, 500, 800, 1250, 1900, 2800, 4000, 5500, 8000];
+        let chargingCompany = null;
+
+        function displayCities() {
+            const citiesDiv = document.getElementById('cities');
+            citiesDiv.innerHTML = '';
+            for (const city in cities) {
+                const cityDiv = document.createElement('div');
+                cityDiv.className = 'city-container';
+                cityDiv.innerHTML = `<div class="city-title">${city}</div>`;
+                cities[city].forEach(company => {
+                    cityDiv.innerHTML += `<div class="company-item"><span class="company-name">${company}</span><span id="${city}-${company}"></span></div>`;
+                });
+                citiesDiv.appendChild(cityDiv);
+            }
+        }
+
+        function companySales() {
+            for (const city in cities) {
+                cities[city].forEach(company => {
+                    const sales = Math.floor(Math.random() * 3) + 1;
+                    money += sales;
+                    document.getElementById(`${city}-${company}`).textContent = `+$${sales}`;
+                    if (Math.random() < 1 / 80) {
+                        chargingCompany = { city, company };
+                        document.getElementById('messageArea').textContent = `${company} in ${city} is overloading carbon! Charge?`;
+                        document.getElementById('actionButtons').style.display = 'block';
+                    }
+                });
+            }
+            updateDisplay();
+        }
+
+        function chargeCompany() {
+            if (chargingCompany) {
+                money += 5;
+                document.getElementById('messageArea').textContent = `${chargingCompany.company} in ${chargingCompany.city} charged.`;
+                chargingCompany = null;
+            }
+            hideActions();
+        }
+
+        function doNothing() {
+            if (chargingCompany) {
+                money -= 3;
+                document.getElementById('messageArea').textContent = `Bad reviews! Money lost.`;
+                chargingCompany = null;
+            }
+            hideActions();
+        }
+
+        function hideActions() {
+            document.getElementById('actionButtons').style.display = 'none';
+        }
+
+        function updateDisplay() {
+            document.getElementById('moneyDisplay').textContent = `Money: $${money}`;
+            checkLevelUp();
+        }
+
+        function checkLevelUp() {
+            if (money >= levelGoals[level - 1]) {
+                money += levelRewards[level - 1];
+                level++;
+                document.getElementById('levelDisplay').textContent = `Level: ${level}`;
+                document.getElementById('messageArea').textContent = `Level ${level - 1} completed! Reward: $${levelRewards[level - 2]}`;
+                if (level > 10) {
+                    document.getElementById('messageArea').textContent = "You win!";
+                    clearInterval(gameLoop);
+                }
+                updateDisplay();
+            }
+        }
+
+        document.getElementById('chargeButton').addEventListener('click', chargeCompany);
+        document.getElementById('doNothingButton').addEventListener('click', doNothing);
+
+        setTimeout(() => {
+            document.getElementById('cutscene').style.display = 'none';
+            displayCities();
+            const gameLoop = setInterval(companySales, 3000);
+        }, 3000);
+    </script>
+</body>
+</html>
