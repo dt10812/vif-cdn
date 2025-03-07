@@ -97,7 +97,7 @@
         <div class="level-display" id="levelDisplay">Level: 1</div>
         <div class="money-display" id="moneyDisplay">Money: $0</div>
         <div id="cities"></div>
-        <div class="action-buttons" id="actionButtons" style="display: none;">
+        <div class="action-buttons" id="actionButtons">
             <button id="chargeButton">Charge</button>
             <button id="doNothingButton">Do Nothing</button>
         </div>
@@ -132,6 +132,7 @@
         }
 
         function companySales() {
+            let carbonOverloadOccurred = false;
             for (const city in cities) {
                 cities[city].forEach(company => {
                     const sales = Math.floor(Math.random() * 3) + 1;
@@ -139,10 +140,13 @@
                     document.getElementById(`${city}-${company}`).textContent = `+$${sales}`;
                     if (Math.random() < 1 / 80) {
                         chargingCompany = { city, company };
-                        document.getElementById('messageArea').textContent = `${company} in ${city} is overloading carbon! Charge?`;
-                        document.getElementById('actionButtons').style.display = 'block';
+                        document.getElementById('messageArea').textContent = `Company ${company} in ${city} is overloading carbon!`;
+                        carbonOverloadOccurred = true;
                     }
                 });
+            }
+            if(!carbonOverloadOccurred){
+                document.getElementById('messageArea').textContent = "No company is using overloaded carbon.";
             }
             updateDisplay();
         }
@@ -153,7 +157,6 @@
                 document.getElementById('messageArea').textContent = `${chargingCompany.company} in ${chargingCompany.city} charged.`;
                 chargingCompany = null;
             }
-            hideActions();
         }
 
         function doNothing() {
@@ -162,11 +165,6 @@
                 document.getElementById('messageArea').textContent = `Bad reviews! Money lost.`;
                 chargingCompany = null;
             }
-            hideActions();
-        }
-
-        function hideActions() {
-            document.getElementById('actionButtons').style.display = 'none';
         }
 
         function updateDisplay() {
