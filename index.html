@@ -15,7 +15,6 @@
             align-items: center;
             min-height: 100vh;
         }
-
         .game-container {
             background-color: white;
             border-radius: 15px;
@@ -25,45 +24,38 @@
             max-width: 800px;
             text-align: center;
         }
-
         .cutscene {
             font-size: 1.2em;
             margin-bottom: 30px;
             color: #333;
         }
-
         .city-container {
             margin-bottom: 20px;
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 8px;
         }
-
         .city-title {
             font-weight: bold;
             margin-bottom: 10px;
             color: #00838f;
         }
-
         .company-item {
             border-bottom: 1px solid #eee;
             padding: 8px 0;
             display: flex;
             justify-content: space-between;
         }
-
         .company-name {
             flex-grow: 1;
             text-align: left;
         }
-
         .money-display {
             font-size: 1.3em;
             font-weight: bold;
             color: #4caf50;
             margin-bottom: 20px;
         }
-
         .action-buttons button {
             background-color: #00acc1;
             color: white;
@@ -74,17 +66,14 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-
         .action-buttons button:hover {
             background-color: #00838f;
         }
-
         .message-area {
             color: #d32f2f;
             font-weight: bold;
             margin-top: 20px;
         }
-
         .level-display {
             font-size: 1.1em;
             margin-bottom: 15px;
@@ -103,19 +92,14 @@
         </div>
         <div class="message-area" id="messageArea"></div>
     </div>
-
     <script>
-        const cities = {
-            Googagoo: ['A', 'B', 'C'],
-            Grooseus: ['A', 'B', 'C'],
-            Ooolowtaperfade: ['A', 'B', 'C']
-        };
-
+        const cities = { Googagoo: ['A', 'B', 'C'], Grooseus: ['A', 'B', 'C'], Ooolowtaperfade: ['A', 'B', 'C'] };
         let money = 0;
         let level = 1;
         const levelGoals = [3000, 3500, 4250, 5500, 7000, 9000, 12000, 16000, 22000, 30000];
         const levelRewards = [200, 300, 500, 800, 1250, 1900, 2800, 4000, 5500, 8000];
         let chargingCompany = null;
+        let doNothingTimeout = null;
 
         function displayCities() {
             const citiesDiv = document.getElementById('cities');
@@ -142,11 +126,19 @@
                         chargingCompany = { city, company };
                         document.getElementById('messageArea').textContent = `Company ${company} in ${city} is overloading carbon!`;
                         carbonOverloadOccurred = true;
+                        if (doNothingTimeout) {
+                            clearTimeout(doNothingTimeout);
+                        }
+                        doNothingTimeout = setTimeout(applyDoNothingPenalty, 30000);
                     }
                 });
             }
-            if(!carbonOverloadOccurred){
+            if (!carbonOverloadOccurred) {
                 document.getElementById('messageArea').textContent = "No company is using overloaded carbon.";
+                if (doNothingTimeout) {
+                    clearTimeout(doNothingTimeout);
+                    doNothingTimeout = null;
+                }
             }
             updateDisplay();
         }
@@ -156,14 +148,25 @@
                 money += 5;
                 document.getElementById('messageArea').textContent = `${chargingCompany.company} in ${chargingCompany.city} charged.`;
                 chargingCompany = null;
+                clearTimeout(doNothingTimeout);
+                doNothingTimeout = null;
             }
         }
 
         function doNothing() {
             if (chargingCompany) {
+                document.getElementById('messageArea').textContent = `Waiting for 30 seconds penalty.`;
+            }
+        }
+
+        function applyDoNothingPenalty() {
+            if (chargingCompany) {
                 money -= 3;
+                alert("30 seconds passed. Penalty applied!");
                 document.getElementById('messageArea').textContent = `Bad reviews! Money lost.`;
                 chargingCompany = null;
+                doNothingTimeout = null;
+                updateDisplay();
             }
         }
 
