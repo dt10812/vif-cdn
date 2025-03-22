@@ -23,6 +23,7 @@
             width: 90%;
             max-width: 800px;
             text-align: center;
+            position: relative;
         }
         .cutscene {
             font-size: 1.2em;
@@ -34,11 +35,13 @@
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 8px;
+            background: white;
         }
         .city-title {
             font-weight: bold;
             margin-bottom: 10px;
             color: #00838f;
+            font-size: 1.2em;
         }
         .company-item {
             border-bottom: 1px solid #eee;
@@ -46,9 +49,12 @@
             display: flex;
             justify-content: space-between;
         }
-        .company-name {
-            flex-grow: 1;
-            text-align: left;
+        .city-image {
+            width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
         }
         .money-display {
             font-size: 1.3em;
@@ -64,10 +70,11 @@
             margin: 8px;
             border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
         }
         .action-buttons button:hover {
             background-color: #00838f;
+            transform: scale(1.05);
         }
         .message-area {
             color: #d32f2f;
@@ -93,7 +100,11 @@
         <div class="message-area" id="messageArea"></div>
     </div>
     <script>
-        const cities = { Googagoo: ['A', 'B', 'C'], Grooseus: ['A', 'B', 'C'], Ooolowtaperfade: ['A', 'B', 'C'] };
+        const cities = {
+            Googagoo: { companies: ['A', 'B', 'C'], image: 'https://source.unsplash.com/400x200/?city' },
+            Grooseus: { companies: ['A', 'B', 'C'], image: 'https://source.unsplash.com/400x200/?industry' },
+            Ooolowtaperfade: { companies: ['A', 'B', 'C'], image: 'https://source.unsplash.com/400x200/?factories' }
+        };
         let money = 0;
         let level = 1;
         const levelGoals = [3000, 3500, 4250, 5500, 7000, 9000, 12000, 16000, 22000, 30000];
@@ -105,10 +116,14 @@
             const citiesDiv = document.getElementById('cities');
             citiesDiv.innerHTML = '';
             for (const city in cities) {
+                const cityData = cities[city];
                 const cityDiv = document.createElement('div');
                 cityDiv.className = 'city-container';
-                cityDiv.innerHTML = `<div class="city-title">${city}</div>`;
-                cities[city].forEach(company => {
+                cityDiv.innerHTML = `
+                    <img src="${cityData.image}" class="city-image">
+                    <div class="city-title">${city}</div>
+                `;
+                cityData.companies.forEach(company => {
                     cityDiv.innerHTML += `<div class="company-item"><span class="company-name">${company}</span><span id="${city}-${company}"></span></div>`;
                 });
                 citiesDiv.appendChild(cityDiv);
@@ -118,7 +133,7 @@
         function companySales() {
             let carbonOverloadOccurred = false;
             for (const city in cities) {
-                cities[city].forEach(company => {
+                cities[city].companies.forEach(company => {
                     const sales = Math.floor(Math.random() * 3) + 1;
                     money += sales;
                     document.getElementById(`${city}-${company}`).textContent = `+$${sales}`;
