@@ -1,1 +1,19 @@
+Sevenax : Carbon Pricing Simulator is an interactive carbon pricing simulation game where players manage a country's economy while enforcing environmental policies. Balance economic growth, corporate responsibility, and sustainability to develop a thriving nation.
+Features:
+- Real-time decision-making on carbon pricing policies
+- Dynamic economic and environmental events
+-  Company taxation and renewable energy investments
+- Level progression and financial management
+- Engaging visuals and interactive gameplay
+Target Audience:
+- Students and educators interested in economics and environmental science
+- Gamers who enjoy simulation and strategy games
+- Policy enthusiasts exploring carbon pricing models
+Technologies Used:
+- HTML, CSS, JavaScript
+- Interactive UI with real-time updates
+- Random event generation for dynamic gameplay
 
+Objective:
+Your goal is to grow Sevenax into a developed country by implementing effective carbon pricing strategies while maintaining economic stability.
+Warning : All of the images are generated ChatGPT, please review OpenAI's TOS and Privacy Policy for more info. The code was 100% made by dt10812.
